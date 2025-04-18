@@ -21,6 +21,8 @@ import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { login } from "@/actions/login";
 import { useState, useTransition } from "react";
+import { redirect } from "next/navigation";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 
 export const LoginForm = () => {
@@ -41,8 +43,16 @@ export const LoginForm = () => {
             startTransition (() => {
                 login(values) 
                     .then((data) => {
-                        setError(data.error);
-                        setSuccess(data.success) ;
+                        if (data) {
+                            if (data.error) {
+                                setError(data.error);
+                            }
+                            if (data.success) {
+                                setSuccess(data.success) ;
+                                redirect(DEFAULT_LOGIN_REDIRECT) ;
+                            }
+                        }
+                        
                     })
             });
         }
