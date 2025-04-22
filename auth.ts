@@ -10,6 +10,7 @@ declare module "@auth/core" {
 
   interface Session  {
     user : {
+      id : string ,
       role : string ;
     } & DefaultSession["user"]
   }
@@ -24,11 +25,6 @@ export const {
   } = NextAuth({
     callbacks : {
       async session ({token , session }){
-        console.log({
-          sessionToken : token ,
-          session
-        })
-
         if (token.sub && session.user) {
           session.user.id = token.sub ;
         }
