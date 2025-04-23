@@ -7,26 +7,45 @@ import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 import { NextURL } from "next/dist/server/web/next-url";
+import { getUserByEmail } from "@/data/user";
+import { generateVerificationToken } from "@/lib/tokens";
+import { existsSync } from "fs";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export const login = async(values : z.infer<typeof LoginSchema>) => {
     const validatedFileds = LoginSchema.safeParse(values);
-    console.log(values)
+    //console.log(values)
 
     if(!validatedFileds.success){
         return {error : "Invalid Fileds!"}
     }
 
     const { email , password } = validatedFileds.data ;
+
+    const exitingUser = await getUserByEmail(email) ;
+
+    if(!exitingUser || !exitingUser.email || !exitingUser.password) {
+        return {error : "Invalid Credentials!"}
+    }
+
+    if(!exitingUser.emailVerified) {
+        
+        const verificationToken = await generateVerificationToken(exitingUser.email) ;
+
+        await sendVerificationEmail(verificationToken.email , verificationToken.token)
+
+        return { success : "Confirmaiton email sent!"}
+    }
     
     try {
-        console.log("signing in") ;
+        //console.log("signing in") ;
         const res = await signIn("credentials", {
             email ,
             password,
             redirect: false 
         }
         )
-        console.log(res)
+        //console.log(res)
         if(res) {
             return { success: "Login successful!" };
         }
@@ -37,7 +56,7 @@ export const login = async(values : z.infer<typeof LoginSchema>) => {
                 case "CredentialsSignin" :
                     return {error : "Invalid Credentials!"} 
                 default : 
-                    return {error : "Something went wrong"}
+                    return {error : "Something went wrong!"}
             }
         }
     }

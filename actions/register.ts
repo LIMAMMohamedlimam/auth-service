@@ -4,10 +4,12 @@ import { RegisterSchema } from "@/schemas";
 import { db } from "@/lib/db";
 import bcrypt from "bcrypt" ;
 import { getUserByEmail } from "@/data/user";
+import { generateVerificationToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export const register = async(values : z.infer<typeof RegisterSchema>) => {
     const validatedFileds = RegisterSchema.safeParse(values);
-    console.log(values)
+    //console.log(values)
 
     if(!validatedFileds.success) {
         return {error : "Invalied fields!"}
@@ -34,9 +36,13 @@ export const register = async(values : z.infer<typeof RegisterSchema>) => {
         },
     });
 
+    const verificationToken = await generateVerificationToken(email) ;
+
     //TODO : Send verification email
 
-    return {success : "account created  with success"}
+    await sendVerificationEmail(verificationToken.email ,verificationToken.token) ;
+
+    return {success : "Confirmation Email Sent"}
 
     
 };
