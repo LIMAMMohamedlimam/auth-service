@@ -45,7 +45,7 @@ export const NewVerificationForm = () => {
             <div className="flex items-center w-full justify-center">
                 {!success && !error &&(<ClipLoader
                 color="#6de88c"
-                size={38}
+                size={38} 
                 />)}
                 <FormSuccess message={success}/>
                 <FormError message={error} />

@@ -21,3 +21,10 @@ export const RegisterSchema = z.object({
         {message: "minimum length 1"}
         )
 })
+
+
+export const ResetSchema = z.object({
+    email : z.string().email({
+        message : "Email is required"
+    }).min(1),
+})

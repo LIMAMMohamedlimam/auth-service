@@ -3,10 +3,9 @@
 import { CardWrapper } from "@/components/auth/card-wrapper";
 import {useForm} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams } from "next/navigation";
 import * as z from "zod" ;
 
-import { LoginSchema } from "@/schemas";
+import { ResetSchema } from "@/schemas";
 
 import {
     Form,
@@ -25,38 +24,40 @@ import { use, useState, useTransition } from "react";
 import { redirect } from "next/navigation";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import Link from "next/link";
+import { reset } from "@/actions/reset-password";
 
 
 
-export const LoginForm = () => {
-    const searchParams = useSearchParams() ;
-    const urlError = searchParams.get("error") == "OAuthAccountNotLinked"
-    ? "Email already in use with different provider!"
-    :"" ;
+export const ResetForm = () => {
+    
     const [isPending , startTransition] = useTransition() ;
     const [error ,setError ] = useState<string | undefined>("") ;
     const [success, setSuccess] = useState<string | undefined>("") ; 
-    const form = useForm<z.infer<typeof LoginSchema>>({
-        resolver: zodResolver(LoginSchema),
+    const form = useForm<z.infer<typeof ResetSchema>>({
+        resolver: zodResolver(ResetSchema),
         defaultValues : {
             email : "" ,
-            password : ""
         },
         });
 
-        const onSubmit = (values : z.infer<typeof LoginSchema>) => {
+        const onSubmit = (values : z.infer<typeof ResetSchema>) => {
             setError("") ;
             setSuccess("") ;
+            console.log(values)
+            
+
             startTransition (() => {
-                login(values) 
+                reset(values) 
                     .then((data) => {
                         if (data) {
+                            console.log(data)
                             if (data.error) {
                                 setError(data.error);
+                                console.log("error")
                             }
                             if (data.success) {
                                 setSuccess(data.success) ;
-                                redirect(DEFAULT_LOGIN_REDIRECT) ;
+                                //redirect(DEFAULT_LOGIN_REDIRECT) ;
                             }
                         }
                         
@@ -68,10 +69,10 @@ export const LoginForm = () => {
     return (
 
         <CardWrapper
-        headerLabel="Welcome back"
-        backButtonHref="/auth/register"
-        backButtonLabel="Don't have an account?"
-        showSocial
+        headerLabel="Forgot your password ?"
+        backButtonHref="/auth/login"
+        backButtonLabel="Back to login"
+        
         >
             <Form 
                 {...form}
@@ -100,48 +101,18 @@ export const LoginForm = () => {
                             </FormItem>
                         )}
                         />
-                        <FormField
-                        control={form.control}
-                        name = 'password'
-                        render={({field}) => (
-                            <FormItem>
-                                <FormLabel>Password</FormLabel>
-                                <FormControl>
-                                    <Input 
-                                    {...field}
-                                    disabled = {isPending}
-                                    placeholder="********" 
-                                    type="password"
-                                    />
-                                    
-                                    
-                                </FormControl>
-                                
-                                <FormMessage />
-                            </FormItem>
-                            
-                        )}
-                        />
+                        
                         
                     </div>
-                    <Button
-                                    size= "sm"
-                                    variant= "link"
-                                    asChild
-                                    className="px-0 font-normal"
-                                >
-                                    <Link href="/auth/reset">
-                                        Forgot password?
-                                    </Link>
-                                </Button>
-                    <FormError message={error || urlError} />
+                    
+                    <FormError message={error} />
                     <FormSuccess message={success} />
                     <Button
                     disabled = {isPending}
                     type="submit"
                     className="w-full "
                     >
-                        Login
+                        Send reset email
                     </Button>
                 </form>
             </Form>
