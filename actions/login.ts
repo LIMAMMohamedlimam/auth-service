@@ -11,6 +11,8 @@ import { getUserByEmail } from "@/data/user";
 import { generateTwoFactorToken, generateVerificationToken } from "@/lib/tokens";
 import { existsSync } from "fs";
 import { sendTwoFactorTokenEmail, sendVerificationEmail } from "@/lib/mail";
+import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
+import { db } from "@/lib/db";
 
 export const login = async(values : z.infer<typeof LoginSchema>) => {
     const validatedFileds = LoginSchema.safeParse(values);
@@ -20,7 +22,7 @@ export const login = async(values : z.infer<typeof LoginSchema>) => {
         return {error : "Invalid Fileds!"}
     }
 
-    const { email , password } = validatedFileds.data ;
+    const { email , password , code } = validatedFileds.data ;
 
     const exitingUser = await getUserByEmail(email) ;
 
@@ -38,10 +40,25 @@ export const login = async(values : z.infer<typeof LoginSchema>) => {
     }
 
     if(exitingUser.isTwoFactorEnabled && exitingUser.email){
+
+        if(code){
+        const twoFactorToken = await getTwoFactorTokenByEmail(exitingUser.email) ;
+        if(!twoFactorToken) return {error : "Invalid code"} ;
+        if(twoFactorToken.token !== code) return {error : "Invalid code!" } ;
+        
+        const hasExpired = new Date(twoFactorToken.expires) < new Date() ; 
+        if(hasExpired) return {error : "Code expired!"} ; 
+
+        await db.twoFactorToken.delete({
+            where : {id : twoFactorToken.id},
+        })
+
+    }else{
         const twoFactorToken = await generateTwoFactorToken(email) ;
         await sendTwoFactorTokenEmail (twoFactorToken.email , twoFactorToken.token) ;
 
         return {twoFactor : true} ;
+    }
     }
     
     try {
