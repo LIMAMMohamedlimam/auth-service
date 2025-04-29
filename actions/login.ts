@@ -13,6 +13,7 @@ import { existsSync } from "fs";
 import { sendTwoFactorTokenEmail, sendVerificationEmail } from "@/lib/mail";
 import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
 import { db } from "@/lib/db";
+import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
 
 export const login = async(values : z.infer<typeof LoginSchema>) => {
     const validatedFileds = LoginSchema.safeParse(values);
@@ -44,13 +45,27 @@ export const login = async(values : z.infer<typeof LoginSchema>) => {
         if(code){
         const twoFactorToken = await getTwoFactorTokenByEmail(exitingUser.email) ;
         if(!twoFactorToken) return {error : "Invalid code"} ;
-        if(twoFactorToken.token !== code) return {error : "Invalid code!" } ;
+        if(twoFactorToken.token !== code) return {error : `${twoFactorToken.token} and ${code}` } ;
         
         const hasExpired = new Date(twoFactorToken.expires) < new Date() ; 
         if(hasExpired) return {error : "Code expired!"} ; 
 
         await db.twoFactorToken.delete({
             where : {id : twoFactorToken.id},
+        });
+
+        const existingConfirmation = await getTwoFactorConfirmationByUserId(exitingUser.id) ;
+
+        if(existingConfirmation) {
+        await db.twoFactorConfirmation.delete({
+            where : {id : existingConfirmation.id}
+        });
+        }
+        
+        db.twoFactorConfirmation.create({
+            data : {
+                userId : exitingUser.id,
+            }
         })
 
     }else{

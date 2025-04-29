@@ -41,7 +41,8 @@ export const LoginForm = () => {
         resolver: zodResolver(LoginSchema),
         defaultValues : {
             email : "" ,
-            password : ""
+            password : "",
+            code : "" ,
         },
         });
 
@@ -87,30 +88,7 @@ export const LoginForm = () => {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-6">
                     <div className="space-y-4">
-                        {showTwoFactor && (
-                            <FormField
-                            control={form.control}
-                            name = 'code'
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormLabel>Two Factor Code</FormLabel>
-                                    <FormControl>
-                                        <Input 
-                                        {...field}
-                                        disabled = {isPending}
-                                        placeholder="123456" 
-                                        />
-                                        
-                                        
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                        )}
-                        />
-                        )}
-
-                        {!showTwoFactor && (
-                            <>
+                    {!showTwoFactor && (<>
                             <FormField
                             control={form.control}
                             name = 'email'
@@ -153,11 +131,8 @@ export const LoginForm = () => {
                                 
                             )}
                             />
-                        </>
-                        )}
-                        
-                    </div>
-                    {!showTwoFactor && (<Button
+                    
+                                <Button
                                     size= "sm"
                                     variant= "link"
                                     asChild
@@ -166,7 +141,26 @@ export const LoginForm = () => {
                                     <Link href="/auth/reset">
                                         Forgot password?
                                     </Link>
-                                </Button>)}
+                                </Button>
+                        </>)}
+                    </div>
+                        {showTwoFactor && (<FormField
+                            control={form.control}
+                            name = 'code'
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Two Factor Code</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                        {...field}
+                                        disabled = {isPending}
+                                        placeholder="123456" 
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                        )}
+                        />)}
                     <FormError message={error || urlError} />
                     <FormSuccess message={success} />
                     <Button
