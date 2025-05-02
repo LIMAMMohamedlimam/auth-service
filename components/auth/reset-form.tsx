@@ -43,21 +43,17 @@ export const ResetForm = () => {
         const onSubmit = (values : z.infer<typeof ResetSchema>) => {
             setError("") ;
             setSuccess("") ;
-            console.log(values)
             
 
             startTransition (() => {
                 reset(values) 
                     .then((data) => {
                         if (data) {
-                            console.log(data)
                             if (data.error) {
                                 setError(data.error);
-                                console.log("error")
                             }
                             if (data.success) {
                                 setSuccess(data.success) ;
-                                //redirect(DEFAULT_LOGIN_REDIRECT) ;
                             }
                         }
                         

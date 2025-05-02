@@ -16,7 +16,6 @@ export const reset = async (values : z.infer<typeof ResetSchema>) => {
     }
 
     const {email}  = validatedFileds.data;
-    console.log(email)
 
     const existingUser = await getUserByEmail(email) ; 
 

@@ -9,7 +9,6 @@ import { sendVerificationEmail } from "@/lib/mail";
 
 export const register = async(values : z.infer<typeof RegisterSchema>) => {
     const validatedFileds = RegisterSchema.safeParse(values);
-    //console.log(values)
 
     if(!validatedFileds.success) {
         return {error : "Invalied fields!"}
