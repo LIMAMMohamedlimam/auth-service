@@ -60,7 +60,7 @@ export const LoginForm = () => {
                             if (data.success) {
                                 form.reset();
                                 setSuccess(data.success) ;
-                                //redirect(DEFAULT_LOGIN_REDIRECT) ;
+                                redirect(DEFAULT_LOGIN_REDIRECT) ;
                             }
                             if(data.twoFactor){
                                 setShowTwoFactor(true) ; 
