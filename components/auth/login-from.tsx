@@ -3,7 +3,7 @@
 import { CardWrapper } from "@/components/auth/card-wrapper";
 import {useForm} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import * as z from "zod" ;
 
 import { LoginSchema } from "@/schemas";
@@ -29,6 +29,7 @@ import Link from "next/link";
 
 
 export const LoginForm = () => {
+    const router = useRouter() ; 
     const searchParams = useSearchParams() ;
     const urlError = searchParams.get("error") == "OAuthAccountNotLinked"
     ? "Email already in use with different provider!"
@@ -58,9 +59,10 @@ export const LoginForm = () => {
                                 setError(data.error);
                             }
                             if (data.success) {
-                                form.reset();
                                 setSuccess(data.success) ;
-                                redirect(DEFAULT_LOGIN_REDIRECT) ;
+                                setTimeout(() => {
+                                router.push(DEFAULT_LOGIN_REDIRECT) ;
+                                }, 1000);
                             }
                             if(data.twoFactor){
                                 setShowTwoFactor(true) ; 
