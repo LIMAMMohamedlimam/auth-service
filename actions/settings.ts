@@ -7,7 +7,6 @@ import { sendVerificationEmail } from "@/lib/mail";
 import { generateVerificationToken } from "@/lib/tokens";
 import { SettingsSchema } from "@/schemas";
 import bcrypt from "bcryptjs";
-import { AwardIcon } from "lucide-react";
 import { z } from "zod";
 
 
@@ -58,7 +57,13 @@ export const settings = async (
 
     }
 
-    if(validatedFields.data.password && validatedFields.data.newPassword && dbUser.password){
+    if(validatedFields.data.newPassword?.length == 0 || validatedFields.data.password?.length ==0){
+        validatedFields.data.password = undefined;
+        validatedFields.data.newPassword = undefined;
+    }
+
+    if(validatedFields.data.password 
+         && validatedFields.data.newPassword && dbUser.password){
         const passwordMatch = await bcrypt.compare(
             validatedFields.data.password,
             dbUser.password,
@@ -73,6 +78,8 @@ export const settings = async (
         validatedFields.data.password = hashedPassword ;
         validatedFields.data.newPassword = undefined;
     }
+
+    console.log(validatedFields.data)
 
     await db.user.update({
         where : {id : dbUser.id },

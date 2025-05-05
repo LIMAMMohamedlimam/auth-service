@@ -7,8 +7,8 @@ export const SettingsSchema = z.object({
     isTwoFactorEnabled : z.optional(z.boolean()),
     role : z.enum([UserRole.ADMIN,UserRole.USER]),
     email : z.optional(z.string().email()),
-    password : z.optional(z.string().min(8,{message : "Minimum 8 characters required"})),
-    newPassword : z.z.optional(z.string().min(8)),
+    password: z.optional(z.string()),
+    newPassword : z.optional(z.string()),
 }).refine((data) => {
     if(data.password && !data.newPassword) return false 
     if(data.newPassword && !data.password) return false
