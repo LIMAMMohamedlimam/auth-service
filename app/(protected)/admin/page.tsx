@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { UserRole } from "@/lib/generated/prisma";
 import { toast } from "sonner";
 
-export const AdminPage = () => {
+const AdminPage = () => {
     const onServerActionClick = ()  => {
         admin()
             .then((data) => {
