@@ -1,6 +1,9 @@
 "use client" ;
 
+
 import {useRouter} from "next/navigation" ;
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { LoginForm } from "./login-from";
 
 interface LoginButtonProps {
     children : React.ReactNode ,
@@ -22,9 +25,16 @@ export const LoginButton = ({
 
     if(mode == "modal"){
         return(
-            <span className="text-2xl">
-                TODO: Implement mode="modal" functionality
-            </span>
+            <Dialog>
+                <DialogTrigger asChild={asChild}>
+                    {children}
+                </DialogTrigger>
+                <DialogContent className="p-0 w-auto  bg-transparent
+                border-none">
+                    <DialogTitle></DialogTitle>
+                    <LoginForm />
+                </DialogContent>
+            </Dialog>
         )
     }
 

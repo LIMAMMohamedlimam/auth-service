@@ -21,16 +21,17 @@ import { Button } from "../ui/button";
 import { FormError } from "../form-error";
 import { FormSuccess } from "../form-success";
 import { login } from "@/actions/login";
-import { use, useState, useTransition } from "react";
-import { redirect } from "next/navigation";
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+import {useState, useTransition } from "react";
+
 import Link from "next/link";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 
 
 export const LoginForm = () => {
     const router = useRouter() ; 
     const searchParams = useSearchParams() ;
+    const callbackUrl = searchParams.get("callbackUrl") ;
     const urlError = searchParams.get("error") == "OAuthAccountNotLinked"
     ? "Email already in use with different provider!"
     :"" ;
@@ -51,7 +52,8 @@ export const LoginForm = () => {
             setError("") ;
             setSuccess("") ;
             startTransition (() => {
-                login(values) 
+                console.log(`callbackUrl in loginForm.tsx = ${callbackUrl}`) ;
+                login(values , callbackUrl) 
                     .then((data) => {
                         if (data) {
                             if (data.error) {
@@ -61,7 +63,7 @@ export const LoginForm = () => {
                             if (data.success) {
                                 setSuccess(data.success) ;
                                 setTimeout(() => {
-                                router.push(DEFAULT_LOGIN_REDIRECT) ;
+                                router.push(callbackUrl || DEFAULT_LOGIN_REDIRECT) ;
                                 }, 1000);
                             }
                             if(data.twoFactor){

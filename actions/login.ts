@@ -11,8 +11,13 @@ import { sendTwoFactorTokenEmail, sendVerificationEmail } from "@/lib/mail";
 import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
 import { db } from "@/lib/db";
 import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
-export const login = async(values : z.infer<typeof LoginSchema>) => {
+export const login = async(
+    values : z.infer<typeof LoginSchema>,
+    callbackUrl : string | null
+    ) => {
+        console.log("hello") ;
     const validatedFileds = LoginSchema.safeParse(values);
 
     
@@ -83,18 +88,23 @@ export const login = async(values : z.infer<typeof LoginSchema>) => {
     }
     
     try {
+        console.log(`callbackUrl = ${callbackUrl}, //${DEFAULT_LOGIN_REDIRECT}`) ;
         const res = await signIn("credentials", {
             email ,
             password, 
-            redirect : false
+            redirect : false,
         }
         )
+        console.log(`res = ${res}`)
         if(res) {
             return { success: "Login successful!" };
+        }else{
+            return {error : "Error login in"} ;
         }
         
     } catch (error) {
         if(error instanceof AuthError){
+            console.log(`error.type = ${error.type}`)
             switch(error.type){
                 case "CredentialsSignin" :
                     return {error : "Invalid Credentials!"} 

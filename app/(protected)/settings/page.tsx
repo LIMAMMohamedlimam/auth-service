@@ -10,12 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { currentRole, currentUser } from "@/lib/auth";
 import { UserRole } from "@/lib/generated/prisma";
 import { SettingsSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { ClipLoader } from "react-spinners";
 
 import { z } from "zod";
 
@@ -23,12 +26,49 @@ import { z } from "zod";
 
 
 const SettingsPage =  () => {
-  
-  const user = useCurrentUser() ;
+
+  const user = useCurrentUser() ; 
   const [error , setError] = useState<string|undefined>() ;
   const [success , setSuccess] = useState<string|undefined>() ;
   const [isPending , startTransition] = useTransition() ;
   const { update } = useSession() ;
+ 
+   
+
+
+  console.log(`user: ${JSON.stringify(user)}`) ;
+  /* if (!user){ 
+    return (
+      <ClipLoader
+      color="#6de88c"
+      size={38} 
+      />)} ; */
+
+    /* while(user == undefined) {
+      const user = currentUser() ;
+      return (
+        <ClipLoader 
+        color="#6de88c"
+        size={38} 
+        />
+      )
+    } */
+
+    if (user === undefined) {
+      // Still fetching, React will re-render when it resolves
+      
+      return (<div>
+        <p className="text-center">Loading user...</p>
+        <ClipLoader />
+      </div>
+       );
+    }
+    
+    if (user === null) {
+      // Auth failed or not signed in
+      return <p className="text-center text-destructive">You must be signed in</p>;
+    }
+    
 
   const form = useForm<z.infer<typeof SettingsSchema>>({
     resolver : zodResolver(SettingsSchema),
