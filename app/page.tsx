@@ -24,6 +24,9 @@ export default function Home() {
         <p className="text-white text-lg">
           A simple authentication service
         </p>
+        <p>
+          By Mohamed Limam
+        </p>
         <div>
           <LoginButton mode="modal" asChild>
          <Button variant="secondary" size="lg">
